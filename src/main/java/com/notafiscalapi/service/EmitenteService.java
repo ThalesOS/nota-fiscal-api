@@ -75,6 +75,8 @@ public class EmitenteService {
     public void delete(Long id){
         if(emitenteRepository.existsById(id)){
             emitenteRepository.deleteById(id);
+        }else {
+            throw new RuntimeException("Emitente nao encontrado");
         }
     }
 
