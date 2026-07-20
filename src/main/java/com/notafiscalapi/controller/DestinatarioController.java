@@ -47,4 +47,20 @@ public class DestinatarioController {
     public void deletarDestinatario(@PathVariable Long id) {
         destinatarioService.delete(id);
     }
+    @PostMapping
+    public ResponseEntity<Destinatario> criarDestinatario(@RequestBody Destinatario destinatario) {
+        try {
+            Destinatario novoDestinatario = destinatarioService.salvar(destinatario);
+            return ResponseEntity.ok(novoDestinatario);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Destinatario> buscarDestinatarioPorId(@PathVariable Long id) {
+        return destinatarioService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

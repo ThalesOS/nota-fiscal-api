@@ -2,6 +2,7 @@ package com.notafiscalapi.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,5 +30,3 @@ public class Destinatario {
 
     @Column(nullable = false, length = 8)
     private String cep;
-
-}
