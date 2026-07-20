@@ -3,11 +3,10 @@ package com.notafiscalapi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Collection;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity@Getter@Setter
 public class Destinatario {
 
     @Id
@@ -32,11 +31,4 @@ public class Destinatario {
     @Column(nullable = false, length = 8)
     private String cep;
 
-    public String getEmail() {
-        return email;
-    }
-
-    public String getDocumento() {
-        return documento;
-    }
 }
