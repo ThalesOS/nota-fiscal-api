@@ -1,0 +1,42 @@
+package com.notafiscalapi.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.Collection;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+public class Destinatario {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String documento;
+
+    @Column(nullable = false)
+    private String nome;
+
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String logradouro;
+
+    @Column(nullable = false)
+    private String numero;
+
+    @Column(nullable = false, length = 8)
+    private String cep;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getDocumento() {
+        return documento;
+    }
+}
