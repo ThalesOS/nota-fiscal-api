@@ -3,7 +3,6 @@ package com.notafiscalapi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity@Getter@Setter
