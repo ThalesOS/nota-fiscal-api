@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Collection;
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -32,11 +32,5 @@ public class Destinatario {
     @Column(nullable = false, length = 8)
     private String cep;
 
-    public String getEmail() {
-        return email;
-    }
 
-    public String getDocumento() {
-        return documento;
-    }
 }
