@@ -13,10 +13,6 @@ public class DestinatarioService {
 
     private final DestinatarioRepository repository;
 
-    public DestinatarioService(DestinatarioRepository repository) {
-        this.repository = repository;
-    }
-
     public Destinatario salvar(Destinatario destinatario) {
 
         if (destinatario.getEmail() == null || !destinatario.getEmail().contains("@")) {

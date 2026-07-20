@@ -2,7 +2,7 @@ package com.notafiscalapi.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity@Getter@Setter
