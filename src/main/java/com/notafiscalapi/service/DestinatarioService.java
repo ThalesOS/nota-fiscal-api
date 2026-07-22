@@ -28,7 +28,7 @@ public class DestinatarioService {
     }
 
     @Transactional
-    public Destinatario getById(Long id) {
+    public Destinatario findById(Long id) {
 
         Optional<Destinatario> destinatario = destinatarioRepository.findById(id);
 
@@ -40,7 +40,7 @@ public class DestinatarioService {
     }
 
     @Transactional
-    public List<Destinatario> getAll() {
+    public List<Destinatario> findAll() {
         return destinatarioRepository.findAll();
     }
 

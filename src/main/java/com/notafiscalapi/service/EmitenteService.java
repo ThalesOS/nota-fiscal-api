@@ -27,7 +27,7 @@ public class EmitenteService {
     }
 
     @Transactional
-    public Emitente getById(Long id){
+    public Emitente findById(Long id){
 
         Optional<Emitente> emitente = emitenteRepository.findById(id);
 
@@ -38,7 +38,7 @@ public class EmitenteService {
         }
     }
     @Transactional
-    public List<Emitente> getAll(){
+    public List<Emitente> findAll(){
         return emitenteRepository.findAll();
     }
 

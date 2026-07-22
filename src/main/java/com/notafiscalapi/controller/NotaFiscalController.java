@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/notafiscal")
+@RequestMapping("/api/notas-fiscais")
 public class NotaFiscalController {
 
     private final NotaFiscalService notaFiscalService;
@@ -26,7 +26,7 @@ public class NotaFiscalController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<NotaFiscal> findAll(){
-        return notaFiscalService.getAll();
+        return notaFiscalService.findAll();
     }
 
 

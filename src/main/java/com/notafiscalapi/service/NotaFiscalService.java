@@ -29,7 +29,7 @@ public class NotaFiscalService {
         }
     }
 
-    public List<NotaFiscal> getAll() {
+    public List<NotaFiscal> findAll() {
         return notaFiscalRepository.findAll();
     }
 

@@ -17,7 +17,7 @@ public class ProdutoService {
         this.produtoRepository = produtoRepository;
     }
     @Transactional
-    public Produto createProduto(Produto produto){
+    public Produto create(Produto produto){
         if (produtoRepository.existsByDescricao(produto.getDescricao())) {
             throw new RuntimeException("Produto ja existe");
 
@@ -42,7 +42,7 @@ public class ProdutoService {
 
     }
     @Transactional
-    public Produto updateProduto(Long id, Produto produtoAtualizado){
+    public Produto update(Long id, Produto produtoAtualizado){
 
         Optional<Produto> produtoBanco = produtoRepository.findById(id);
 
@@ -63,7 +63,7 @@ public class ProdutoService {
     }
 
     @Transactional
-    public void deleteProduto(Long id){
+    public void delete(Long id){
         if (produtoRepository.existsById(id)) {
             produtoRepository.deleteById(id);
         }else {
