@@ -3,10 +3,10 @@ package com.notafiscalapi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Data
+@Entity
+@Getter@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity@Getter@Setter
 public class Destinatario {
 
     @Id
@@ -30,3 +30,4 @@ public class Destinatario {
 
     @Column(nullable = false, length = 8)
     private String cep;
+}

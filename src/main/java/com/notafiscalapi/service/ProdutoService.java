@@ -1,6 +1,8 @@
 package com.notafiscalapi.service;
 
 import com.notafiscalapi.entity.Produto;
+import com.notafiscalapi.exception.DuplicateResourceException;
+import com.notafiscalapi.exception.ResourceNotFoundException;
 import com.notafiscalapi.repository.ProdutoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -17,9 +19,9 @@ public class ProdutoService {
         this.produtoRepository = produtoRepository;
     }
     @Transactional
-    public Produto createProduto(Produto produto){
+    public Produto create(Produto produto){
         if (produtoRepository.existsByDescricao(produto.getDescricao())) {
-            throw new RuntimeException("Produto ja existe");
+            throw new DuplicateResourceException("Produto ja existe");
 
         }
         return produtoRepository.save(produto);
@@ -32,7 +34,7 @@ public class ProdutoService {
         if (produto.isPresent()) {
             return produto.get();
         }else {
-            throw new RuntimeException("Produto nao encontrado");
+            throw new ResourceNotFoundException("Produto nao encontrado");
 
         }
     }
@@ -42,7 +44,7 @@ public class ProdutoService {
 
     }
     @Transactional
-    public Produto updateProduto(Long id, Produto produtoAtualizado){
+    public Produto update(Long id, Produto produtoAtualizado){
 
         Optional<Produto> produtoBanco = produtoRepository.findById(id);
 
@@ -56,18 +58,18 @@ public class ProdutoService {
 
             return produtoRepository.save(produto);
         }else {
-            throw new RuntimeException("Produto nao encontrado");
+            throw new ResourceNotFoundException("Produto nao encontrado");
         }
 
 
     }
 
     @Transactional
-    public void deleteProduto(Long id){
+    public void delete(Long id){
         if (produtoRepository.existsById(id)) {
             produtoRepository.deleteById(id);
         }else {
-            throw new RuntimeException("Produto nao encontrado");
+            throw new ResourceNotFoundException("Produto nao encontrado");
         }
     }
 

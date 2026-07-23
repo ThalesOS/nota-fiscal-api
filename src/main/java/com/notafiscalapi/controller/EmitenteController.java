@@ -26,13 +26,13 @@ public class EmitenteController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Emitente buscaEmitentePorId(@PathVariable Long id) {
-        return emitenteService.getById(id);
+        return emitenteService.findById(id);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Emitente> buscarTodosEmitentes() {
-        return emitenteService.getAll();
+        return emitenteService.findAll();
     }
 
     @PutMapping ("/{id}")

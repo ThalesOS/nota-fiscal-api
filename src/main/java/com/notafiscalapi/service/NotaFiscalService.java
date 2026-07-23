@@ -1,6 +1,8 @@
 package com.notafiscalapi.service;
 
 import com.notafiscalapi.entity.NotaFiscal;
+import com.notafiscalapi.exception.DuplicateResourceException;
+import com.notafiscalapi.exception.ResourceNotFoundException;
 import com.notafiscalapi.repository.NotaFiscalRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
@@ -22,14 +24,14 @@ public class NotaFiscalService {
     public NotaFiscal create(NotaFiscal notaFiscal) {
 
         if (notaFiscalRepository.existsByNumeroNotaFiscalAndNumeroDeSerie(notaFiscal.getNumeroNotaFiscal(), notaFiscal.getNumeroDeSerie())) {
-            throw new RuntimeException("Nota Fiscal ja existente");
+            throw new DuplicateResourceException("Nota Fiscal ja existente");
         }else  {
             notaFiscal.setDataEmissao(LocalDateTime.now());
             return notaFiscalRepository.save(notaFiscal);
         }
     }
 
-    public List<NotaFiscal> getAll() {
+    public List<NotaFiscal> findAll() {
         return notaFiscalRepository.findAll();
     }
 
@@ -38,7 +40,7 @@ public class NotaFiscalService {
         if (notaFiscal.isPresent()) {
             return notaFiscal.get();
         }else  {
-            throw new RuntimeException("Nota Fiscal nao encontrado");
+            throw new ResourceNotFoundException("Nota Fiscal nao encontrado");
         }
     }
     @Transactional
@@ -57,7 +59,7 @@ public class NotaFiscalService {
             return notaFiscalRepository.save(notaFiscalDoBanco);
 
         }else   {
-            throw new RuntimeException("Nota Fiscal nao encontrado");
+            throw new ResourceNotFoundException("Nota Fiscal nao encontrado");
         }
     }
     @Transactional
@@ -65,7 +67,7 @@ public class NotaFiscalService {
         if (notaFiscalRepository.findById(id).isPresent()) {
             notaFiscalRepository.deleteById(id);
         }else   {
-            throw new RuntimeException("Nota Fiscal nao encontrado");
+            throw new ResourceNotFoundException("Nota Fiscal nao encontrado");
         }
     }
 }

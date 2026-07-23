@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/produto")
+@RequestMapping("/api/produtos")
 public class ProdutoController {
 
     private final ProdutoService produtoService;
@@ -29,7 +29,7 @@ public class ProdutoController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Produto createProduto(@RequestBody Produto produto){
-        return produtoService.createProduto(produto);
+        return produtoService.create(produto);
     }
 
     @GetMapping("/{id}")
@@ -41,12 +41,12 @@ public class ProdutoController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Produto updateProduto(@PathVariable Long id, @RequestBody Produto produto){
-        return produtoService.updateProduto(id, produto);
+        return produtoService.update(id, produto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduto(@PathVariable Long id){
-        produtoService.deleteProduto(id);
+        produtoService.delete(id);
     }
 }
