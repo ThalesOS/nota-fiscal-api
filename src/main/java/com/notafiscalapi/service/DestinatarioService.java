@@ -1,6 +1,9 @@
 package com.notafiscalapi.service;
 
 import com.notafiscalapi.entity.Destinatario;
+import com.notafiscalapi.exception.BusinessRuleException;
+import com.notafiscalapi.exception.DuplicateResourceException;
+import com.notafiscalapi.exception.ResourceNotFoundException;
 import com.notafiscalapi.repository.DestinatarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,7 @@ public class DestinatarioService {
     public Destinatario create(Destinatario destinatario) {
 
         if (destinatarioRepository.existsByDocumento(destinatario.getDocumento())) {
-            throw new RuntimeException("Destinatário já existe");
+            throw new DuplicateResourceException("Destinatário já existe");
         }
 
         return destinatarioRepository.save(destinatario);
@@ -35,7 +38,7 @@ public class DestinatarioService {
         if (destinatario.isPresent()) {
             return destinatario.get();
         } else {
-            throw new RuntimeException("Destinatário não encontrado");
+            throw new ResourceNotFoundException("Destinatário não encontrado");
         }
     }
 
@@ -56,7 +59,7 @@ public class DestinatarioService {
             if (!destinatarioExistente.getDocumento().equals(destinatarioComNovosDados.getDocumento())
                     && destinatarioRepository.existsByDocumento(destinatarioComNovosDados.getDocumento())) {
 
-                throw new RuntimeException("Não é possível alterar o documento. Este documento já pertence a outro destinatário.");
+                throw new BusinessRuleException("Não é possível alterar o documento. Este documento já pertence a outro destinatário.");
 
             } else {
 
@@ -71,7 +74,7 @@ public class DestinatarioService {
             }
 
         } else {
-            throw new RuntimeException("Destinatário não encontrado para atualização");
+            throw new ResourceNotFoundException("Destinatário não encontrado para atualização");
         }
     }
 
@@ -81,7 +84,7 @@ public class DestinatarioService {
         if (destinatarioRepository.existsById(id)) {
             destinatarioRepository.deleteById(id);
         } else {
-            throw new RuntimeException("Destinatário não encontrado");
+            throw new ResourceNotFoundException("Destinatário não encontrado");
         }
     }
 }

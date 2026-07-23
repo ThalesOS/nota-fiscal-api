@@ -1,6 +1,9 @@
 package com.notafiscalapi.service;
 
 import com.notafiscalapi.entity.Emitente;
+import com.notafiscalapi.exception.BusinessRuleException;
+import com.notafiscalapi.exception.DuplicateResourceException;
+import com.notafiscalapi.exception.ResourceNotFoundException;
 import com.notafiscalapi.repository.EmitenteRepository;
 
 import jakarta.transaction.Transactional;
@@ -21,7 +24,7 @@ public class EmitenteService {
     @Transactional
     public Emitente create(Emitente emitente){
         if(emitenteRepository.existsByCnpj(emitente.getCnpj())){
-            throw new RuntimeException("Emitente já existe");
+            throw new DuplicateResourceException("Emitente já existe");
         }
         return emitenteRepository.save(emitente);
     }
@@ -34,7 +37,7 @@ public class EmitenteService {
         if(emitente.isPresent()){
             return emitente.get();
         } else {
-            throw new RuntimeException("Emitente nao encontrado");
+            throw new ResourceNotFoundException("Emitente nao encontrado");
         }
     }
     @Transactional
@@ -52,7 +55,7 @@ public class EmitenteService {
             if (!emitenteExistente.getCnpj().equals(emitenteComNovosDados.getCnpj()) &&
                     emitenteRepository.existsByCnpj(emitenteComNovosDados.getCnpj())) {
 
-                throw new RuntimeException("Não é possível alterar o CNPJ. Este novo CNPJ já pertence a outra empresa.");
+                throw new BusinessRuleException("Não é possível alterar o CNPJ. Este novo CNPJ já pertence a outra empresa.");
 
             } else {
 
@@ -67,7 +70,7 @@ public class EmitenteService {
                 return emitenteRepository.save(emitenteExistente);
             }
         } else {
-            throw new RuntimeException("Emitente não encontrado para atualização");
+            throw new ResourceNotFoundException("Emitente não encontrado para atualização");
         }
     }
 
@@ -76,7 +79,7 @@ public class EmitenteService {
         if(emitenteRepository.existsById(id)){
             emitenteRepository.deleteById(id);
         }else {
-            throw new RuntimeException("Emitente nao encontrado");
+            throw new ResourceNotFoundException("Emitente nao encontrado");
         }
     }
 
