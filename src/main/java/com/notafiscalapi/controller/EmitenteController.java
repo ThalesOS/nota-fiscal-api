@@ -1,10 +1,14 @@
 package com.notafiscalapi.controller;
 
+import com.notafiscalapi.dto.EmitenteRequestDto;
+import com.notafiscalapi.dto.EmitenteResponseDto;
 import com.notafiscalapi.entity.Emitente;
+import com.notafiscalapi.mapper.EmitenteMapper;
 import com.notafiscalapi.service.EmitenteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -19,26 +23,40 @@ public class EmitenteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Emitente novoEmitente(@RequestBody Emitente emitente) {
-        return emitenteService.create(emitente);
+    public EmitenteResponseDto novoEmitente(@RequestBody EmitenteRequestDto emitenteRequestDto) {
+        Emitente entity = EmitenteMapper.toEntity(emitenteRequestDto);
+        Emitente emitenteSalvo = emitenteService.create(entity);
+        EmitenteResponseDto resposta = EmitenteMapper.toDto(emitenteSalvo);
+        return  resposta;
+
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Emitente buscaEmitentePorId(@PathVariable Long id) {
-        return emitenteService.findById(id);
+    public EmitenteResponseDto buscaEmitentePorId(@PathVariable Long id) {
+        return EmitenteMapper.toDto(emitenteService.findById(id));
+
+
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Emitente> buscarTodosEmitentes() {
-        return emitenteService.findAll();
+    public List<EmitenteResponseDto> buscarTodosEmitentes() {
+       List<Emitente> emitentes = emitenteService.findAll();
+       List<EmitenteResponseDto> resposta = new ArrayList<>();
+       for (Emitente emitente : emitentes) {
+           resposta.add(EmitenteMapper.toDto(emitente));
+
+       }
+        return resposta;
     }
 
     @PutMapping ("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Emitente atualizarEmitente(@PathVariable Long id, @RequestBody Emitente emitente) {
-        return emitenteService.update(emitente,id);
+    public EmitenteResponseDto atualizarEmitente(@PathVariable Long id, @RequestBody EmitenteRequestDto emitenteRequestDto) {
+        Emitente entity = EmitenteMapper.toEntity(emitenteRequestDto);
+        Emitente emitenteAtualizado = emitenteService.update(entity, id);
+        return EmitenteMapper.toDto(emitenteAtualizado);
     }
 
     @DeleteMapping("/{id}")
