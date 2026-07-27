@@ -1,10 +1,14 @@
 package com.notafiscalapi.controller;
 
+import com.notafiscalapi.dto.DestinatarioRequestDto;
+import com.notafiscalapi.dto.DestinatarioResponseDto;
 import com.notafiscalapi.entity.Destinatario;
+import com.notafiscalapi.mapper.DestinatarioMapper;
 import com.notafiscalapi.service.DestinatarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -19,27 +23,39 @@ public class DestinatarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Destinatario novoDestinatario(@RequestBody Destinatario destinatario) {
-        return destinatarioService.create(destinatario);
+    public DestinatarioResponseDto novoDestinatario(@RequestBody DestinatarioRequestDto destinatarioRequestDto) {
+        Destinatario destinatario = DestinatarioMapper.toEntity(destinatarioRequestDto);
+        Destinatario destinatario1 = destinatarioService.create(destinatario);
+        return DestinatarioMapper.toDto(destinatario1);
+
+
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Destinatario buscaDestinatarioPorId(@PathVariable Long id) {
-        return destinatarioService.findById(id);
+    public DestinatarioResponseDto buscaDestinatarioPorId(@PathVariable Long id) {
+        return DestinatarioMapper.toDto(destinatarioService.findById(id));
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Destinatario> buscarTodosDestinatarios() {
-        return destinatarioService.findAll();
+    public List<DestinatarioResponseDto> buscarTodosDestinatarios() {
+        List<Destinatario> destinatario = destinatarioService.findAll();
+        List<DestinatarioResponseDto> resposta = new ArrayList<DestinatarioResponseDto>();
+        for (Destinatario d : destinatario) {
+            resposta.add(DestinatarioMapper.toDto(d));
+        }
+        return resposta;
+
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Destinatario atualizarDestinatario(@PathVariable Long id,
-                                              @RequestBody Destinatario destinatario) {
-        return destinatarioService.update(destinatario, id);
+    public DestinatarioResponseDto atualizarDestinatario(@PathVariable Long id, @RequestBody DestinatarioRequestDto destinatarioRequestDto) {
+        Destinatario destinatario = DestinatarioMapper.toEntity(destinatarioRequestDto);
+        Destinatario destinatario1 = destinatarioService.update(destinatario, id);
+        return DestinatarioMapper.toDto(destinatario1);
+
     }
 
     @DeleteMapping("/{id}")

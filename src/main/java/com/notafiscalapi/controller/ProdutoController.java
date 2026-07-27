@@ -1,10 +1,14 @@
 package com.notafiscalapi.controller;
 
+import com.notafiscalapi.dto.ProdutoRequestDto;
+import com.notafiscalapi.dto.ProdutoResponseDto;
 import com.notafiscalapi.entity.Produto;
+import com.notafiscalapi.mapper.ProdutoMapper;
 import com.notafiscalapi.service.ProdutoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,27 +25,41 @@ public class ProdutoController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Produto> getProdutos(){
-        return produtoService.findAll();
+    public List<ProdutoResponseDto> getProdutos(){
+        List<Produto> produtos = produtoService.findAll();
+        List<ProdutoResponseDto> produtosResponseDto = new ArrayList<>();
+        for (Produto produto : produtos) {
+            ProdutoResponseDto produtoResponseDto = ProdutoMapper.toDto(produto);
+            produtosResponseDto.add(produtoResponseDto);
+        }
+        return produtosResponseDto;
 
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Produto createProduto(@RequestBody Produto produto){
-        return produtoService.create(produto);
+    public ProdutoResponseDto createProduto(@RequestBody ProdutoRequestDto produtoRequestDto){
+        Produto produto = ProdutoMapper.toEntity(produtoRequestDto);
+        Produto produto1 = produtoService.create(produto);
+        return ProdutoMapper.toDto(produto1);
+
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Produto findById(@PathVariable Long id){
-        return produtoService.findById(id);
+    public ProdutoResponseDto findById(@PathVariable Long id){
+        Produto produto = produtoService.findById(id);
+        return ProdutoMapper.toDto(produto);
+
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Produto updateProduto(@PathVariable Long id, @RequestBody Produto produto){
-        return produtoService.update(id, produto);
+    public ProdutoResponseDto updateProduto(@PathVariable Long id, @RequestBody ProdutoRequestDto produtoRequestDto){
+        Produto produto = ProdutoMapper.toEntity(produtoRequestDto);
+        Produto produto1 = produtoService.update(id, produto);
+        return ProdutoMapper.toDto(produto1);
+
     }
 
     @DeleteMapping("/{id}")
