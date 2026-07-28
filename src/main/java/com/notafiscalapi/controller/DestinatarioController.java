@@ -5,6 +5,7 @@ import com.notafiscalapi.dto.DestinatarioResponseDto;
 import com.notafiscalapi.entity.Destinatario;
 import com.notafiscalapi.mapper.DestinatarioMapper;
 import com.notafiscalapi.service.DestinatarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class DestinatarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DestinatarioResponseDto novoDestinatario(@RequestBody DestinatarioRequestDto destinatarioRequestDto) {
+    public DestinatarioResponseDto novoDestinatario(@Valid @RequestBody DestinatarioRequestDto destinatarioRequestDto) {
         Destinatario destinatario = DestinatarioMapper.toEntity(destinatarioRequestDto);
         Destinatario destinatario1 = destinatarioService.create(destinatario);
         return DestinatarioMapper.toDto(destinatario1);
@@ -33,7 +34,7 @@ public class DestinatarioController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public DestinatarioResponseDto buscaDestinatarioPorId(@PathVariable Long id) {
+    public DestinatarioResponseDto buscaDestinatarioPorId(@Valid @PathVariable Long id) {
         return DestinatarioMapper.toDto(destinatarioService.findById(id));
     }
 
@@ -51,7 +52,7 @@ public class DestinatarioController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public DestinatarioResponseDto atualizarDestinatario(@PathVariable Long id, @RequestBody DestinatarioRequestDto destinatarioRequestDto) {
+    public DestinatarioResponseDto atualizarDestinatario( @PathVariable Long id, @Valid @RequestBody DestinatarioRequestDto destinatarioRequestDto) {
         Destinatario destinatario = DestinatarioMapper.toEntity(destinatarioRequestDto);
         Destinatario destinatario1 = destinatarioService.update(destinatario, id);
         return DestinatarioMapper.toDto(destinatario1);

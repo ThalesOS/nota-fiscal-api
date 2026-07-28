@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,5 +29,10 @@ public class NotaFiscal {
     private Emitente emitente;
     @ManyToOne
     private Destinatario destinatario;
+    @OneToMany(mappedBy = "notaFiscal", cascade = CascadeType.ALL,  orphanRemoval = true)
+    private List<ItemNotaFiscal> itens = new ArrayList<>();
+
+
+
 
 }

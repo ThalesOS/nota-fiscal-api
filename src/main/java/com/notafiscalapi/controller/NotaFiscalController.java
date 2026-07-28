@@ -11,6 +11,7 @@ import com.notafiscalapi.mapper.NotaFiscalMapper;
 import com.notafiscalapi.service.DestinatarioService;
 import com.notafiscalapi.service.EmitenteService;
 import com.notafiscalapi.service.NotaFiscalService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class NotaFiscalController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public NotaFiscalResponseDto createNotaFiscal(@RequestBody NotaFiscalRequestDto notaFiscalRequestDto){
+    public NotaFiscalResponseDto createNotaFiscal(@Valid @RequestBody NotaFiscalRequestDto notaFiscalRequestDto){
         NotaFiscal notaFiscal = NotaFiscalMapper.toEntity(notaFiscalRequestDto);
         Emitente emitente = emitenteService.findById(notaFiscalRequestDto.getEmitenteId());
         Destinatario destinatario = destinatarioService.findById(notaFiscalRequestDto.getDestinatarioId());
@@ -67,7 +68,7 @@ public class NotaFiscalController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public NotaFiscalResponseDto updateNotaFiscal(@PathVariable Long id, @RequestBody NotaFiscalRequestDto notaFiscalRequestDto){
+    public NotaFiscalResponseDto updateNotaFiscal(@PathVariable Long id,@Valid @RequestBody NotaFiscalRequestDto notaFiscalRequestDto){
         NotaFiscal notaFiscal = NotaFiscalMapper.toEntity(notaFiscalRequestDto);
         Emitente emitente = emitenteService.findById(notaFiscalRequestDto.getEmitenteId());
         Destinatario destinatario = destinatarioService.findById(notaFiscalRequestDto.getDestinatarioId());
