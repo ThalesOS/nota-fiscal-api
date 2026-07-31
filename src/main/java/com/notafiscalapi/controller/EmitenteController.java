@@ -5,6 +5,7 @@ import com.notafiscalapi.dto.EmitenteResponseDto;
 import com.notafiscalapi.entity.Emitente;
 import com.notafiscalapi.mapper.EmitenteMapper;
 import com.notafiscalapi.service.EmitenteService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class EmitenteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EmitenteResponseDto novoEmitente(@RequestBody EmitenteRequestDto emitenteRequestDto) {
+    public EmitenteResponseDto novoEmitente( @Valid @RequestBody EmitenteRequestDto emitenteRequestDto) {
         Emitente entity = EmitenteMapper.toEntity(emitenteRequestDto);
         Emitente emitenteSalvo = emitenteService.create(entity);
         EmitenteResponseDto resposta = EmitenteMapper.toDto(emitenteSalvo);
@@ -53,7 +54,7 @@ public class EmitenteController {
 
     @PutMapping ("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public EmitenteResponseDto atualizarEmitente(@PathVariable Long id, @RequestBody EmitenteRequestDto emitenteRequestDto) {
+    public EmitenteResponseDto atualizarEmitente(@PathVariable Long id,@Valid @RequestBody EmitenteRequestDto emitenteRequestDto) {
         Emitente entity = EmitenteMapper.toEntity(emitenteRequestDto);
         Emitente emitenteAtualizado = emitenteService.update(entity, id);
         return EmitenteMapper.toDto(emitenteAtualizado);

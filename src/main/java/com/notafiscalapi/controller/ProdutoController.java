@@ -5,6 +5,7 @@ import com.notafiscalapi.dto.ProdutoResponseDto;
 import com.notafiscalapi.entity.Produto;
 import com.notafiscalapi.mapper.ProdutoMapper;
 import com.notafiscalapi.service.ProdutoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,7 @@ public class ProdutoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProdutoResponseDto createProduto(@RequestBody ProdutoRequestDto produtoRequestDto){
+    public ProdutoResponseDto createProduto(@Valid @RequestBody ProdutoRequestDto produtoRequestDto){
         Produto produto = ProdutoMapper.toEntity(produtoRequestDto);
         Produto produto1 = produtoService.create(produto);
         return ProdutoMapper.toDto(produto1);
@@ -55,7 +56,7 @@ public class ProdutoController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProdutoResponseDto updateProduto(@PathVariable Long id, @RequestBody ProdutoRequestDto produtoRequestDto){
+    public ProdutoResponseDto updateProduto(@PathVariable Long id,@Valid @RequestBody ProdutoRequestDto produtoRequestDto){
         Produto produto = ProdutoMapper.toEntity(produtoRequestDto);
         Produto produto1 = produtoService.update(id, produto);
         return ProdutoMapper.toDto(produto1);
