@@ -1,13 +1,15 @@
 package com.notafiscalapi.dto;
 
-import com.notafiscalapi.entity.Destinatario;
-import com.notafiscalapi.entity.Emitente;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,4 +25,8 @@ public class NotaFiscalRequestDto {
     private Long emitenteId;
     @NotNull(message = "O ID de destinatário é obrigaatório")
     private Long destinatarioId;
+    @NotEmpty(message = "A nota fiscal deve conter ao menos um item")
+    @Valid
+    private List<ItemNotaFiscalRequestDto> items;
+
 }

@@ -4,6 +4,7 @@ import com.notafiscalapi.enums.StatusNotaFiscal;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,12 @@ public class NotaFiscal {
     private Destinatario destinatario;
     @OneToMany(mappedBy = "notaFiscal", cascade = CascadeType.ALL,  orphanRemoval = true)
     private List<ItemNotaFiscal> itens = new ArrayList<>();
+    @Column(nullable = false)
+    private BigDecimal valorTotalProdutos;
+    @Column(nullable = false)
+    private BigDecimal valorTotalIcms;
+    @Column(nullable = false)
+    private BigDecimal valorTotalNotaFiscal;
 
 
 
