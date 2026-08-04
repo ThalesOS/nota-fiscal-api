@@ -10,6 +10,7 @@ import com.notafiscalapi.entity.NotaFiscal;
 import com.notafiscalapi.entity.Produto;
 import com.notafiscalapi.enums.StatusNotaFiscal;
 import com.notafiscalapi.mapper.NotaFiscalMapper;
+import com.notafiscalapi.service.DanfePdfGeneratorService;
 import com.notafiscalapi.service.DestinatarioService;
 import com.notafiscalapi.service.EmitenteService;
 import com.notafiscalapi.service.NotaFiscalService;
@@ -33,17 +34,20 @@ public class NotaFiscalController {
     private final DestinatarioService destinatarioService;
     private final ProdutoService produtoService;
     private final XmlNfeGeneratorService xmlNfeGeneratorService;
+    private final DanfePdfGeneratorService danfePdfGeneratorService;
 
     public NotaFiscalController(NotaFiscalService notaFiscalService,
                                 EmitenteService emitenteService,
                                 DestinatarioService destinatarioService,
                                 ProdutoService produtoService,
-                                XmlNfeGeneratorService xmlNfeGeneratorService) {
+                                XmlNfeGeneratorService xmlNfeGeneratorService,
+                                DanfePdfGeneratorService danfePdfGeneratorService) {
         this.notaFiscalService = notaFiscalService;
         this.emitenteService = emitenteService;
         this.destinatarioService = destinatarioService;
         this.produtoService = produtoService;
         this.xmlNfeGeneratorService = xmlNfeGeneratorService;
+        this.danfePdfGeneratorService = danfePdfGeneratorService;
     }
 
     @PostMapping
@@ -112,6 +116,13 @@ public class NotaFiscalController {
     public String getXmlNfe(@PathVariable Long id) {
         NotaFiscal notaFiscal = notaFiscalService.findById(id);
         return xmlNfeGeneratorService.generateXmlNfe(notaFiscal);
+    }
+
+    @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public byte[] getDanfePdf(@PathVariable Long id) {
+        NotaFiscal notaFiscal = notaFiscalService.findById(id);
+        return danfePdfGeneratorService.gerarDanfePdf(notaFiscal);
     }
 
     @PutMapping("/{id}")
