@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler  {
@@ -63,8 +64,12 @@ public class GlobalExceptionHandler  {
 
         ErrorResponse errorResponse = new ErrorResponse();
 
+        String mensagemErro = exception.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+
         errorResponse.setTimestamp(LocalDateTime.now());
-        errorResponse.setMessage(exception.getMessage());
+        errorResponse.setMessage(mensagemErro);
         errorResponse.setPath(request.getRequestURI());
         errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
         errorResponse.setStatus(HttpStatus.BAD_REQUEST);
