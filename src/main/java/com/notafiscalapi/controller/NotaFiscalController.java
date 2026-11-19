@@ -69,7 +69,7 @@ public class NotaFiscalController {
         return danfePdfGeneratorService.gerarDanfePdf(notaFiscal);
     }
 
-    @PatchMapping("/{id}/cancelar")
+    @RequestMapping(value = "/{id}/cancelar", method = {RequestMethod.PATCH, RequestMethod.PUT, RequestMethod.POST})
     @ResponseStatus(HttpStatus.OK)
     public NotaFiscalResponseDto cancelarNotaFiscal(@PathVariable Long id) {
         NotaFiscal notaFiscalCancelada = notaFiscalService.cancelar(id);

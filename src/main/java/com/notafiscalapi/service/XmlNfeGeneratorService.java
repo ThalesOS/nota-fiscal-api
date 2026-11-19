@@ -24,7 +24,7 @@ public class XmlNfeGeneratorService {
         xml.append("      <mod>55</mod>\n");
         xml.append("      <serie>").append(notaFiscal.getNumeroDeSerie()).append("</serie>\n");
         xml.append("      <nNF>").append(notaFiscal.getNumeroNotaFiscal()).append("</nNF>\n");
-        xml.append("      <dhEmi>").append(notaFiscal.getDataEmissao() != null ? notaFiscal.getDataEmissao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "").append("</dhEmi>\n");
+        xml.append("      <dhEmi>").append(notaFiscal.getDataEmissao() != null ? notaFiscal.getDataEmissao().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss-03:00")) : "").append("</dhEmi>\n");
         xml.append("      <tpNF>1</tpNF>\n");
         xml.append("      <idDest>1</idDest>\n");
         xml.append("      <cMunFG>3550308</cMunFG>\n");

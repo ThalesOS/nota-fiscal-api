@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -52,7 +53,7 @@ public class NotaFiscalService {
         notaFiscal.setEmitente(emitente);
         notaFiscal.setDestinatario(destinatario);
         notaFiscal.setStatus(StatusNotaFiscal.EMITIDA);
-        notaFiscal.setDataEmissao(LocalDateTime.now());
+        notaFiscal.setDataEmissao(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
 
         BigDecimal totalProdutos = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal totalIcms = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);

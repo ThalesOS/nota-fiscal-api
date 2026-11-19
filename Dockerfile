@@ -19,4 +19,4 @@ COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8081
 
-ENTRYPOINT ["java", "-Djava.awt.headless=true", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.awt.headless=true", "-Duser.timezone=America/Sao_Paulo", "-jar", "app.jar"]
