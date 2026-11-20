@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { emitenteService } from '../services/emitenteService';
 import { Emitente, EmitenteRequest } from '../types';
 import { formatCnpjCpf, formatCep } from '../utils/formatters';
+import { getFormValidationError } from '../utils/formValidation';
 import { Building2, Plus, Trash2, AlertCircle, Pencil } from 'lucide-react';
 
 const Emitentes: React.FC = () => {
@@ -83,7 +85,7 @@ const Emitentes: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErro(null);
 
@@ -97,6 +99,11 @@ const Emitentes: React.FC = () => {
     }
     if (cepLimpo.length !== 8) {
       setErro('O CEP deve conter exatamente 8 dígitos numéricos.');
+      return;
+    }
+    const validationError = getFormValidationError(e.currentTarget);
+    if (validationError) {
+      setErro(validationError);
       return;
     }
 
@@ -212,7 +219,7 @@ const Emitentes: React.FC = () => {
       </div>
 
       {/* Modal de Cadastro / Edição */}
-      {modalAberto && (
+      {modalAberto && createPortal(
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
             <h3 className="text-base font-bold text-slate-800">
@@ -226,12 +233,13 @@ const Emitentes: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form noValidate onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1">Razão Social *</label>
                 <input
                   type="text"
                   required
+                              minLength={3}
                   value={formData.razaoSocial}
                   onChange={(e) => setFormData({ ...formData, razaoSocial: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -283,6 +291,7 @@ const Emitentes: React.FC = () => {
                   <input
                     type="text"
                     required
+                    minLength={3}
                     value={formData.logradouro}
                     onChange={(e) => setFormData({ ...formData, logradouro: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -306,6 +315,7 @@ const Emitentes: React.FC = () => {
                   <input
                     type="text"
                     required
+                    minLength={3}
                     value={formData.bairro}
                     onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -349,7 +359,8 @@ const Emitentes: React.FC = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

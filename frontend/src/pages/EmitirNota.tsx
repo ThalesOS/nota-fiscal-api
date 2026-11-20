@@ -6,6 +6,7 @@ import { produtoService } from '../services/produtoService';
 import { notaFiscalService } from '../services/notaFiscalService';
 import { Emitente, Destinatario, Produto, NotaFiscalRequest } from '../types';
 import { formatCurrency } from '../utils/formatters';
+import { getFormValidationError } from '../utils/formValidation';
 import { 
   Plus, 
   Trash2, 
@@ -76,7 +77,7 @@ const EmitirNota: React.FC = () => {
 
   const handleRemoveItem = (index: number) => {
     if (items.length === 1) {
-      alert('A nota fiscal deve conter ao menos um item.');
+      setErro('A nota fiscal deve conter ao menos um item.');
       return;
     }
     setItems(items.filter((_, i) => i !== index));
@@ -102,7 +103,7 @@ const EmitirNota: React.FC = () => {
     }
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErro(null);
 
@@ -124,6 +125,11 @@ const EmitirNota: React.FC = () => {
     }
     if (items.some((i) => !i.produtoId || i.quantidade <= 0)) {
       setErro('Verifique os produtos e garanta que todas as quantidades sejam maiores que zero.');
+      return;
+    }
+    const validationError = getFormValidationError(e.currentTarget);
+    if (validationError) {
+      setErro(validationError);
       return;
     }
 
@@ -155,7 +161,7 @@ const EmitirNota: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl space-y-6">
+    <form noValidate onSubmit={handleSubmit} className="max-w-5xl space-y-6">
       {/* Topo */}
       <div>
         <h2 className="text-xl font-bold text-slate-800">Emissão de Nota Fiscal Eletrônica</h2>

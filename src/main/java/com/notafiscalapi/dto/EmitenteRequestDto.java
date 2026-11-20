@@ -15,14 +15,17 @@ public class EmitenteRequestDto {
     @Size(min = 14, max = 14, message = "O CNPJ deve conter exatamente 14 dígitos")
     private String cnpj;
     @NotBlank(message = "A razão social é obrigatória")
+    @Size(min = 3, message = "A razão social deve conter ao menos 3 caracteres")
     private String razaoSocial;
     @NotBlank(message = "A inscrição Social é obrigatória")
     private String inscricaoEstadual;
     @NotBlank(message = "O logradouro é obrigatório")
+    @Size(min = 3, message = "O logradouro deve conter ao menos 3 caracteres")
     private String logradouro;
     @NotBlank(message = "O número é obrigatório")
     private String numero;
     @NotBlank(message = "O bairro é obrigatório")
+    @Size(min = 3, message = "O bairro deve conter ao menos 3 caracteres")
     private String bairro;
     @NotBlank(message = "O cep é obrigatório")
     @Size(min = 8, max = 8, message = "O cep deve conter exatos 8 dígitos")

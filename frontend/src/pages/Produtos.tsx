@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { produtoService } from '../services/produtoService';
 import { Produto, ProdutoRequest } from '../types';
 import { formatCurrency } from '../utils/formatters';
+import { getFormValidationError } from '../utils/formValidation';
 import { Package, Plus, Trash2, AlertCircle, Pencil } from 'lucide-react';
 
 const Produtos: React.FC = () => {
@@ -74,7 +76,7 @@ const Produtos: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErro(null);
 
@@ -84,6 +86,15 @@ const Produtos: React.FC = () => {
     }
     if (!formData.codigoNcm.trim()) {
       setErro('O código NCM é obrigatório.');
+      return;
+    }
+    if (!/^\d{8}$/.test(formData.codigoNcm.trim())) {
+      setErro('O código NCM deve conter exatamente 8 dígitos numéricos.');
+      return;
+    }
+    const validationError = getFormValidationError(e.currentTarget);
+    if (validationError) {
+      setErro(validationError);
       return;
     }
 
@@ -189,7 +200,7 @@ const Produtos: React.FC = () => {
       </div>
 
       {/* Modal de Cadastro / Edição */}
-      {modalAberto && (
+      {modalAberto && createPortal(
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-4">
             <h3 className="text-base font-bold text-slate-800">
@@ -203,12 +214,13 @@ const Produtos: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form noValidate onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1">Descrição do Produto *</label>
                 <input
                   type="text"
                   required
+                  minLength={3}
                   value={formData.descricao}
                   onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -235,6 +247,10 @@ const Produtos: React.FC = () => {
                   <input
                     type="text"
                     required
+                    minLength={8}
+                    maxLength={8}
+                    pattern="[0-9]{8}"
+                    inputMode="numeric"
                     value={formData.codigoNcm}
                     onChange={(e) => setFormData({ ...formData, codigoNcm: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -278,7 +294,8 @@ const Produtos: React.FC = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
