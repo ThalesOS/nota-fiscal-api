@@ -17,6 +17,11 @@ export const produtoService = {
     return response.data;
   },
 
+  update: async (id: number, data: ProdutoRequest): Promise<Produto> => {
+    const response = await api.put<Produto>(`/produtos/${id}`, data);
+    return response.data;
+  },
+
   delete: async (id: number): Promise<void> => {
     await api.delete(`/produtos/${id}`);
   }

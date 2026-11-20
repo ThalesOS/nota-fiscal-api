@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { emitenteService } from '../services/emitenteService';
 import { Emitente, EmitenteRequest } from '../types';
 import { formatCnpjCpf, formatCep } from '../utils/formatters';
-import { Building2, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { Building2, Plus, Trash2, AlertCircle, Pencil } from 'lucide-react';
 
 const Emitentes: React.FC = () => {
   const [emitentes, setEmitentes] = useState<Emitente[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
+  const [idEmEdicao, setIdEmEdicao] = useState<number | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
 
@@ -35,6 +36,36 @@ const Emitentes: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenNovo = () => {
+    setIdEmEdicao(null);
+    setFormData({
+      cnpj: '',
+      razaoSocial: '',
+      inscricaoEstadual: '',
+      logradouro: '',
+      numero: '',
+      bairro: '',
+      cep: '',
+    });
+    setErro(null);
+    setModalAberto(true);
+  };
+
+  const handleOpenEdit = (emit: Emitente) => {
+    setIdEmEdicao(emit.id);
+    setFormData({
+      cnpj: emit.cnpj,
+      razaoSocial: emit.razaoSocial,
+      inscricaoEstadual: emit.inscricaoEstadual,
+      logradouro: emit.logradouro,
+      numero: emit.numero,
+      bairro: emit.bairro,
+      cep: emit.cep,
+    });
+    setErro(null);
+    setModalAberto(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -70,22 +101,23 @@ const Emitentes: React.FC = () => {
     }
 
     try {
-      await emitenteService.create({
-        ...formData,
-        cnpj: cnpjLimpo,
-        cep: cepLimpo,
-      });
+      if (idEmEdicao) {
+        await emitenteService.update(idEmEdicao, {
+          ...formData,
+          cnpj: cnpjLimpo,
+          cep: cepLimpo,
+        });
+        setSucesso('Emitente atualizado com sucesso!');
+      } else {
+        await emitenteService.create({
+          ...formData,
+          cnpj: cnpjLimpo,
+          cep: cepLimpo,
+        });
+        setSucesso('Emitente cadastrado com sucesso!');
+      }
       setModalAberto(false);
-      setFormData({
-        cnpj: '',
-        razaoSocial: '',
-        inscricaoEstadual: '',
-        logradouro: '',
-        numero: '',
-        bairro: '',
-        cep: '',
-      });
-      setSucesso('Emitente cadastrado com sucesso!');
+      setIdEmEdicao(null);
       setTimeout(() => setSucesso(null), 3000);
       carregarEmitentes();
     } catch (err: any) {
@@ -102,7 +134,7 @@ const Emitentes: React.FC = () => {
           <p className="text-xs text-slate-500 mt-0.5">Cadastro de empresas responsáveis pela emissão fiscal</p>
         </div>
         <button
-          onClick={() => setModalAberto(true)}
+          onClick={handleOpenNovo}
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg text-sm shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" /> Novo Emitente
@@ -138,29 +170,38 @@ const Emitentes: React.FC = () => {
                   <th className="py-3 px-4">Razão Social</th>
                   <th className="py-3 px-4">CNPJ</th>
                   <th className="py-3 px-4">Inscrição Estadual</th>
-                  <th className="py-3 px-4">Endereço / Bairro</th>
+                  <th className="py-3 px-4">Endereço</th>
                   <th className="py-3 px-4">CEP</th>
                   <th className="py-3 px-4 text-center">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {emitentes.map((emit) => (
-                  <tr key={emit.id} className="hover:bg-slate-50">
-                    <td className="py-3.5 px-4 font-bold text-slate-800">{emit.razaoSocial}</td>
-                    <td className="py-3.5 px-4">{formatCnpjCpf(emit.cnpj)}</td>
+                  <tr key={emit.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3.5 px-4 font-semibold text-slate-900">{emit.razaoSocial}</td>
+                    <td className="py-3.5 px-4 font-mono text-xs">{formatCnpjCpf(emit.cnpj)}</td>
                     <td className="py-3.5 px-4">{emit.inscricaoEstadual}</td>
                     <td className="py-3.5 px-4 text-xs">
                       {emit.logradouro}, {emit.numero} - {emit.bairro}
                     </td>
                     <td className="py-3.5 px-4">{formatCep(emit.cep)}</td>
                     <td className="py-3.5 px-4 text-center">
-                      <button
-                        onClick={() => handleDelete(emit.id)}
-                        title="Excluir emitente"
-                        className="p-1.5 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handleOpenEdit(emit)}
+                          title="Editar emitente"
+                          className="p-1.5 rounded-md hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(emit.id)}
+                          title="Excluir emitente"
+                          className="p-1.5 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -170,11 +211,13 @@ const Emitentes: React.FC = () => {
         )}
       </div>
 
-      {/* Modal de Cadastro */}
+      {/* Modal de Cadastro / Edição */}
       {modalAberto && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-800">Cadastrar Nova Empresa Emitente</h3>
+            <h3 className="text-base font-bold text-slate-800">
+              {idEmEdicao ? 'Editar Empresa Emitente' : 'Cadastrar Nova Empresa Emitente'}
+            </h3>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
@@ -191,16 +234,26 @@ const Emitentes: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">CNPJ (14 dígitos) *</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    CNPJ (14 dígitos) * {idEmEdicao && <span className="text-amber-600 text-[10px] font-normal">(Não alterável)</span>}
+                  </label>
                   <input
                     type="text"
                     required
                     maxLength={14}
+                    disabled={!!idEmEdicao}
                     value={formData.cnpj}
                     onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      idEmEdicao
+                        ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed select-none'
+                        : 'border-slate-200'
+                    }`}
                     placeholder="Somente números"
                   />
+                  {idEmEdicao && (
+                    <p className="text-[11px] text-slate-400 mt-0.5">Identificador fiscal único da empresa.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">Inscrição Estadual *</label>
@@ -265,7 +318,10 @@ const Emitentes: React.FC = () => {
               <div className="flex justify-end gap-2 pt-3">
                 <button
                   type="button"
-                  onClick={() => setModalAberto(false)}
+                  onClick={() => {
+                    setModalAberto(false);
+                    setIdEmEdicao(null);
+                  }}
                   className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50"
                 >
                   Cancelar
@@ -274,7 +330,7 @@ const Emitentes: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold"
                 >
-                  Salvar Emitente
+                  {idEmEdicao ? 'Atualizar Emitente' : 'Salvar Emitente'}
                 </button>
               </div>
             </form>

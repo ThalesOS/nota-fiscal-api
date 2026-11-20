@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { destinatarioService } from '../services/destinatarioService';
 import { Destinatario, DestinatarioRequest } from '../types';
 import { formatCnpjCpf, formatCep } from '../utils/formatters';
-import { Users, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { Users, Plus, Trash2, AlertCircle, Pencil } from 'lucide-react';
 
 const Destinatarios: React.FC = () => {
   const [destinatarios, setDestinatarios] = useState<Destinatario[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
+  const [idEmEdicao, setIdEmEdicao] = useState<number | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
 
@@ -34,6 +35,34 @@ const Destinatarios: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenNovo = () => {
+    setIdEmEdicao(null);
+    setFormData({
+      documento: '',
+      nome: '',
+      email: '',
+      logradouro: '',
+      numero: '',
+      cep: '',
+    });
+    setErro(null);
+    setModalAberto(true);
+  };
+
+  const handleOpenEdit = (dest: Destinatario) => {
+    setIdEmEdicao(dest.id);
+    setFormData({
+      documento: dest.documento,
+      nome: dest.nome,
+      email: dest.email,
+      logradouro: dest.logradouro,
+      numero: dest.numero,
+      cep: dest.cep,
+    });
+    setErro(null);
+    setModalAberto(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -68,25 +97,27 @@ const Destinatarios: React.FC = () => {
     }
 
     try {
-      await destinatarioService.create({
-        ...formData,
-        documento: docLimpo,
-        cep: cepLimpo,
-      });
+      if (idEmEdicao) {
+        await destinatarioService.update(idEmEdicao, {
+          ...formData,
+          documento: docLimpo,
+          cep: cepLimpo,
+        });
+        setSucesso('Cliente destinatário atualizado com sucesso!');
+      } else {
+        await destinatarioService.create({
+          ...formData,
+          documento: docLimpo,
+          cep: cepLimpo,
+        });
+        setSucesso('Cliente destinatário cadastrado com sucesso!');
+      }
       setModalAberto(false);
-      setFormData({
-        documento: '',
-        nome: '',
-        email: '',
-        logradouro: '',
-        numero: '',
-        cep: '',
-      });
-      setSucesso('Cliente destinatário cadastrado com sucesso!');
+      setIdEmEdicao(null);
       setTimeout(() => setSucesso(null), 3000);
       carregarDestinatarios();
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Erro ao cadastrar destinatário.';
+      const msg = err.response?.data?.message || 'Erro ao salvar destinatário.';
       setErro(msg);
     }
   };
@@ -99,7 +130,7 @@ const Destinatarios: React.FC = () => {
           <p className="text-xs text-slate-500 mt-0.5">Cadastro de pessoas físicas ou jurídicas compradoras</p>
         </div>
         <button
-          onClick={() => setModalAberto(true)}
+          onClick={handleOpenNovo}
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg text-sm shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" /> Novo Destinatário
@@ -133,7 +164,7 @@ const Destinatarios: React.FC = () => {
               <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4">Nome / Razão</th>
-                  <th className="py-3 px-4">CPF / CNPJ</th>
+                  <th className="py-3 px-4">Documento</th>
                   <th className="py-3 px-4">E-mail</th>
                   <th className="py-3 px-4">Endereço</th>
                   <th className="py-3 px-4">CEP</th>
@@ -142,22 +173,31 @@ const Destinatarios: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {destinatarios.map((dest) => (
-                  <tr key={dest.id} className="hover:bg-slate-50">
-                    <td className="py-3.5 px-4 font-bold text-slate-800">{dest.nome}</td>
-                    <td className="py-3.5 px-4">{formatCnpjCpf(dest.documento)}</td>
-                    <td className="py-3.5 px-4 text-xs text-slate-600">{dest.email}</td>
+                  <tr key={dest.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3.5 px-4 font-semibold text-slate-900">{dest.nome}</td>
+                    <td className="py-3.5 px-4 font-mono text-xs">{formatCnpjCpf(dest.documento)}</td>
+                    <td className="py-3.5 px-4 text-xs text-slate-500">{dest.email}</td>
                     <td className="py-3.5 px-4 text-xs">
                       {dest.logradouro}, {dest.numero}
                     </td>
                     <td className="py-3.5 px-4">{formatCep(dest.cep)}</td>
                     <td className="py-3.5 px-4 text-center">
-                      <button
-                        onClick={() => handleDelete(dest.id)}
-                        title="Excluir destinatário"
-                        className="p-1.5 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handleOpenEdit(dest)}
+                          title="Editar destinatário"
+                          className="p-1.5 rounded-md hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(dest.id)}
+                          title="Excluir destinatário"
+                          className="p-1.5 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -167,15 +207,17 @@ const Destinatarios: React.FC = () => {
         )}
       </div>
 
-      {/* Modal de Cadastro */}
+      {/* Modal de Cadastro / Edição */}
       {modalAberto && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-800">Cadastrar Novo Destinatário</h3>
+            <h3 className="text-base font-bold text-slate-800">
+              {idEmEdicao ? 'Editar Cliente Destinatário' : 'Cadastrar Novo Cliente Destinatário'}
+            </h3>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Nome Completo / Razão *</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Nome Completo / Razão Social *</label>
                 <input
                   type="text"
                   required
@@ -188,15 +230,26 @@ const Destinatarios: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">CPF ou CNPJ *</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    CPF ou CNPJ * {idEmEdicao && <span className="text-amber-600 text-[10px] font-normal">(Não alterável)</span>}
+                  </label>
                   <input
                     type="text"
                     required
+                    maxLength={14}
+                    disabled={!!idEmEdicao}
                     value={formData.documento}
                     onChange={(e) => setFormData({ ...formData, documento: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      idEmEdicao
+                        ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed select-none'
+                        : 'border-slate-200'
+                    }`}
                     placeholder="Somente números"
                   />
+                  {idEmEdicao && (
+                    <p className="text-[11px] text-slate-400 mt-0.5">Identificador único (CPF/CNPJ).</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">E-mail *</label>
@@ -250,7 +303,10 @@ const Destinatarios: React.FC = () => {
               <div className="flex justify-end gap-2 pt-3">
                 <button
                   type="button"
-                  onClick={() => setModalAberto(false)}
+                  onClick={() => {
+                    setModalAberto(false);
+                    setIdEmEdicao(null);
+                  }}
                   className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50"
                 >
                   Cancelar
@@ -259,7 +315,7 @@ const Destinatarios: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold"
                 >
-                  Salvar Destinatário
+                  {idEmEdicao ? 'Atualizar Destinatário' : 'Salvar Destinatário'}
                 </button>
               </div>
             </form>

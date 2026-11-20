@@ -17,6 +17,11 @@ export const emitenteService = {
     return response.data;
   },
 
+  update: async (id: number, data: EmitenteRequest): Promise<Emitente> => {
+    const response = await api.put<Emitente>(`/emitentes/${id}`, data);
+    return response.data;
+  },
+
   delete: async (id: number): Promise<void> => {
     await api.delete(`/emitentes/${id}`);
   }

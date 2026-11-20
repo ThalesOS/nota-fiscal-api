@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { produtoService } from '../services/produtoService';
 import { Produto, ProdutoRequest } from '../types';
 import { formatCurrency } from '../utils/formatters';
-import { Package, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { Package, Plus, Trash2, AlertCircle, Pencil } from 'lucide-react';
 
 const Produtos: React.FC = () => {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
+  const [idEmEdicao, setIdEmEdicao] = useState<number | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
 
@@ -32,6 +33,30 @@ const Produtos: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenNovo = () => {
+    setIdEmEdicao(null);
+    setFormData({
+      descricao: '',
+      valorUnitario: 0,
+      codigoNcm: '',
+      aliquotaIcms: 18.0,
+    });
+    setErro(null);
+    setModalAberto(true);
+  };
+
+  const handleOpenEdit = (prod: Produto) => {
+    setIdEmEdicao(prod.id);
+    setFormData({
+      descricao: prod.descricao,
+      valorUnitario: prod.valorUnitario,
+      codigoNcm: prod.codigoNcm,
+      aliquotaIcms: prod.aliquotaIcms,
+    });
+    setErro(null);
+    setModalAberto(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -63,23 +88,19 @@ const Produtos: React.FC = () => {
     }
 
     try {
-      await produtoService.create({
-        ...formData,
-        valorUnitario: Number(formData.valorUnitario),
-        aliquotaIcms: Number(formData.aliquotaIcms),
-      });
+      if (idEmEdicao) {
+        await produtoService.update(idEmEdicao, formData);
+        setSucesso('Produto atualizado com sucesso!');
+      } else {
+        await produtoService.create(formData);
+        setSucesso('Produto cadastrado com sucesso!');
+      }
       setModalAberto(false);
-      setFormData({
-        descricao: '',
-        valorUnitario: 0,
-        codigoNcm: '',
-        aliquotaIcms: 18.0,
-      });
-      setSucesso('Produto cadastrado com sucesso!');
+      setIdEmEdicao(null);
       setTimeout(() => setSucesso(null), 3000);
       carregarProdutos();
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Erro ao cadastrar produto.';
+      const msg = err.response?.data?.message || 'Erro ao salvar produto.';
       setErro(msg);
     }
   };
@@ -89,10 +110,10 @@ const Produtos: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Catálogo de Produtos</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Produtos disponíveis para emissão de notas fiscais com tributos</p>
+          <p className="text-xs text-slate-500 mt-0.5">Gestão de mercadorias, tributação e preços de venda</p>
         </div>
         <button
-          onClick={() => setModalAberto(true)}
+          onClick={handleOpenNovo}
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg text-sm shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" /> Novo Produto
@@ -114,7 +135,7 @@ const Produtos: React.FC = () => {
       {/* Tabela de Produtos */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500 text-sm">Carregando catálogo...</div>
+          <div className="p-8 text-center text-slate-500 text-sm">Carregando...</div>
         ) : produtos.length === 0 ? (
           <div className="p-12 text-center text-slate-400">
             <Package className="w-12 h-12 mx-auto text-slate-300 mb-2" />
@@ -125,7 +146,7 @@ const Produtos: React.FC = () => {
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-4">Descrição do Produto</th>
+                  <th className="py-3 px-4">Descrição</th>
                   <th className="py-3 px-4">Código NCM</th>
                   <th className="py-3 px-4 text-right">Alíquota ICMS</th>
                   <th className="py-3 px-4 text-right">Preço Unitário</th>
@@ -134,21 +155,30 @@ const Produtos: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {produtos.map((prod) => (
-                  <tr key={prod.id} className="hover:bg-slate-50">
-                    <td className="py-3.5 px-4 font-bold text-slate-800">{prod.descricao}</td>
-                    <td className="py-3.5 px-4 text-xs font-mono">{prod.codigoNcm}</td>
+                  <tr key={prod.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3.5 px-4 font-semibold text-slate-900">{prod.descricao}</td>
+                    <td className="py-3.5 px-4 font-mono text-xs text-slate-500">{prod.codigoNcm}</td>
                     <td className="py-3.5 px-4 text-right font-medium text-blue-600">{prod.aliquotaIcms}%</td>
                     <td className="py-3.5 px-4 text-right font-bold text-slate-900">
                       {formatCurrency(prod.valorUnitario)}
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <button
-                        onClick={() => handleDelete(prod.id)}
-                        title="Excluir produto"
-                        className="p-1.5 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handleOpenEdit(prod)}
+                          title="Editar produto"
+                          className="p-1.5 rounded-md hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(prod.id)}
+                          title="Excluir produto"
+                          className="p-1.5 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -158,11 +188,13 @@ const Produtos: React.FC = () => {
         )}
       </div>
 
-      {/* Modal de Cadastro */}
+      {/* Modal de Cadastro / Edição */}
       {modalAberto && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-800">Cadastrar Novo Produto</h3>
+            <h3 className="text-base font-bold text-slate-800">
+              {idEmEdicao ? 'Editar Produto' : 'Cadastrar Novo Produto'}
+            </h3>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
@@ -221,7 +253,10 @@ const Produtos: React.FC = () => {
               <div className="flex justify-end gap-2 pt-3">
                 <button
                   type="button"
-                  onClick={() => setModalAberto(false)}
+                  onClick={() => {
+                    setModalAberto(false);
+                    setIdEmEdicao(null);
+                  }}
                   className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50"
                 >
                   Cancelar
@@ -230,7 +265,7 @@ const Produtos: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold"
                 >
-                  Salvar Produto
+                  {idEmEdicao ? 'Atualizar Produto' : 'Salvar Produto'}
                 </button>
               </div>
             </form>

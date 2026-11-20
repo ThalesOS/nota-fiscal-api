@@ -17,6 +17,11 @@ export const destinatarioService = {
     return response.data;
   },
 
+  update: async (id: number, data: DestinatarioRequest): Promise<Destinatario> => {
+    const response = await api.put<Destinatario>(`/destinatarios/${id}`, data);
+    return response.data;
+  },
+
   delete: async (id: number): Promise<void> => {
     await api.delete(`/destinatarios/${id}`);
   }
