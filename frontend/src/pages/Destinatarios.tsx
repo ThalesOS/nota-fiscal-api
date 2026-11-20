@@ -142,7 +142,7 @@ const Destinatarios: React.FC = () => {
           {sucesso}
         </div>
       )}
-      {erro && (
+      {erro && !modalAberto && (
         <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-rose-600" />
           {erro}
@@ -214,6 +214,13 @@ const Destinatarios: React.FC = () => {
             <h3 className="text-base font-bold text-slate-800">
               {idEmEdicao ? 'Editar Cliente Destinatário' : 'Cadastrar Novo Cliente Destinatário'}
             </h3>
+
+            {erro && (
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{erro}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
@@ -306,6 +313,7 @@ const Destinatarios: React.FC = () => {
                   onClick={() => {
                     setModalAberto(false);
                     setIdEmEdicao(null);
+                    setErro(null);
                   }}
                   className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50"
                 >
