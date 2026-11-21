@@ -11,6 +11,7 @@ import com.notafiscalapi.enums.StatusNotaFiscal;
 import com.notafiscalapi.exception.BusinessRuleException;
 import com.notafiscalapi.exception.DuplicateResourceException;
 import com.notafiscalapi.exception.ResourceNotFoundException;
+import com.notafiscalapi.integration.SefazClient;
 import com.notafiscalapi.mapper.NotaFiscalMapper;
 import com.notafiscalapi.repository.NotaFiscalRepository;
 import jakarta.transaction.Transactional;
@@ -29,15 +30,21 @@ public class NotaFiscalService {
     private final EmitenteService emitenteService;
     private final DestinatarioService destinatarioService;
     private final ProdutoService produtoService;
+    private final XmlNfeGeneratorService xmlNfeGeneratorService;
+    private final SefazClient sefazClient;
 
     public NotaFiscalService(NotaFiscalRepository notaFiscalRepository,
                              EmitenteService emitenteService,
                              DestinatarioService destinatarioService,
-                             ProdutoService produtoService) {
+                             ProdutoService produtoService,
+                             XmlNfeGeneratorService xmlNfeGeneratorService,
+                             SefazClient sefazClient) {
         this.notaFiscalRepository = notaFiscalRepository;
         this.emitenteService = emitenteService;
         this.destinatarioService = destinatarioService;
         this.produtoService = produtoService;
+        this.xmlNfeGeneratorService = xmlNfeGeneratorService;
+        this.sefazClient = sefazClient;
     }
 
     @Transactional
@@ -52,7 +59,8 @@ public class NotaFiscalService {
         NotaFiscal notaFiscal = NotaFiscalMapper.toEntity(dto);
         notaFiscal.setEmitente(emitente);
         notaFiscal.setDestinatario(destinatario);
-        notaFiscal.setStatus(StatusNotaFiscal.EMITIDA);
+        // Status provisório; o definitivo vem do retorno da SEFAZ abaixo.
+        notaFiscal.setStatus(StatusNotaFiscal.FALHA_ENVIO);
         notaFiscal.setDataEmissao(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
 
         BigDecimal totalProdutos = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
@@ -88,7 +96,32 @@ public class NotaFiscalService {
         notaFiscal.setValorTotalIcms(totalIcms);
         notaFiscal.setValorTotalNotaFiscal(totalProdutos);
 
-        return notaFiscalRepository.save(notaFiscal);
+        NotaFiscal notaSalva = notaFiscalRepository.save(notaFiscal);
+        transmitirParaSefaz(notaSalva);
+        return notaFiscalRepository.save(notaSalva);
+    }
+
+    private void transmitirParaSefaz(NotaFiscal notaFiscal) {
+        String xml = xmlNfeGeneratorService.generateXmlNfe(notaFiscal);
+        SefazClient.TransmissaoSefaz transmissao = sefazClient.enviarNfe(xml, notaFiscal.getId());
+        SefazClient.RetornoSefaz retorno = transmissao.retorno();
+
+        notaFiscal.setUrlSefaz(transmissao.url());
+        notaFiscal.setDataEnvioSefaz(transmissao.dataEnvio());
+        notaFiscal.setTempoRespostaMs(transmissao.tempoRespostaMs());
+        notaFiscal.setHttpStatusSefaz(transmissao.httpStatus());
+        notaFiscal.setRequisicaoSefaz(transmissao.requisicao());
+        notaFiscal.setRespostaSefaz(transmissao.resposta());
+
+        if (retorno.autorizada()) {
+            notaFiscal.setStatus(StatusNotaFiscal.EMITIDA);
+            notaFiscal.setProtocoloAutorizacao(retorno.protocolo());
+        } else if (retorno.falhaEnvio()) {
+            notaFiscal.setStatus(StatusNotaFiscal.FALHA_ENVIO);
+        } else {
+            notaFiscal.setStatus(StatusNotaFiscal.REJEITADA);
+        }
+        notaFiscal.setMensagemSefaz(retorno.mensagem());
     }
 
     public List<NotaFiscal> findAll() {
@@ -105,6 +138,9 @@ public class NotaFiscalService {
         NotaFiscal notaFiscal = findById(id);
         if (StatusNotaFiscal.CANCELADA.equals(notaFiscal.getStatus())) {
             throw new BusinessRuleException("A Nota Fiscal ID " + id + " já se encontra cancelada");
+        }
+        if (!StatusNotaFiscal.EMITIDA.equals(notaFiscal.getStatus())) {
+            throw new BusinessRuleException("Só é possível cancelar notas autorizadas pela SEFAZ");
         }
         notaFiscal.setStatus(StatusNotaFiscal.CANCELADA);
         return notaFiscalRepository.save(notaFiscal);

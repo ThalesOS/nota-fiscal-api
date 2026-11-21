@@ -1,11 +1,16 @@
 package com.notafiscalapi.service;
 
 import com.lowagie.text.*;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfGState;
+import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.notafiscalapi.entity.ItemNotaFiscal;
 import com.notafiscalapi.entity.NotaFiscal;
+import com.notafiscalapi.enums.StatusNotaFiscal;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -21,7 +26,12 @@ public class DanfePdfGeneratorService {
         Document document = new Document(PageSize.A4, 20, 20, 20, 20);
 
         try {
-            PdfWriter.getInstance(document, out);
+            PdfWriter writer = PdfWriter.getInstance(document, out);
+            // Ambiente de homologação: todo DANFE sai "SEM VALOR FISCAL".
+            String subtituloMarca = StatusNotaFiscal.EMITIDA.equals(notaFiscal.getStatus())
+                    ? "EMITIDA EM HOMOLOGAÇÃO"
+                    : "NÃO AUTORIZADA PELA SEFAZ";
+            writer.setPageEvent(new MarcaDaguaSemValorFiscal(subtituloMarca));
             document.open();
 
             Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Color.BLACK);
@@ -96,6 +106,21 @@ public class DanfePdfGeneratorService {
             tableEmissao.addCell(cellNat);
 
             document.add(tableEmissao);
+
+            PdfPTable tableSefaz = new PdfPTable(1);
+            tableSefaz.setWidthPercentage(100);
+            String protocolo = notaFiscal.getProtocoloAutorizacao() != null
+                    ? notaFiscal.getProtocoloAutorizacao()
+                    : "NÃO AUTORIZADA";
+            PdfPCell cellProtocolo = new PdfPCell(new Phrase("PROTOCOLO DE AUTORIZAÇÃO DE USO: " + protocolo, fontTextoNegrito));
+            cellProtocolo.setPadding(5);
+            tableSefaz.addCell(cellProtocolo);
+            if (notaFiscal.getMensagemSefaz() != null) {
+                PdfPCell cellRetorno = new PdfPCell(new Phrase("RETORNO DA SEFAZ: " + notaFiscal.getMensagemSefaz(), fontTexto));
+                cellRetorno.setPadding(5);
+                tableSefaz.addCell(cellRetorno);
+            }
+            document.add(tableSefaz);
             document.add(new Paragraph(" "));
 
             Paragraph pItensHeader = new Paragraph("DADOS DOS PRODUTOS / SERVIÇOS", fontSubtitulo);
@@ -158,6 +183,40 @@ public class DanfePdfGeneratorService {
         }
 
         return out.toByteArray();
+    }
+
+    private static class MarcaDaguaSemValorFiscal extends PdfPageEventHelper {
+        private final String subtitulo;
+
+        MarcaDaguaSemValorFiscal(String subtitulo) {
+            this.subtitulo = subtitulo;
+        }
+
+        @Override
+        public void onEndPage(PdfWriter writer, Document document) {
+            try {
+                BaseFont fonte = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                PdfContentByte canvas = writer.getDirectContent();
+                PdfGState transparencia = new PdfGState();
+                transparencia.setFillOpacity(0.25f);
+
+                float centroX = document.getPageSize().getWidth() / 2;
+                float centroY = document.getPageSize().getHeight() / 2;
+
+                canvas.saveState();
+                canvas.setGState(transparencia);
+                canvas.setColorFill(new Color(200, 0, 0));
+                canvas.beginText();
+                canvas.setFontAndSize(fonte, 64);
+                canvas.showTextAligned(Element.ALIGN_CENTER, "SEM VALOR FISCAL", centroX, centroY, 45);
+                canvas.setFontAndSize(fonte, 26);
+                canvas.showTextAligned(Element.ALIGN_CENTER, subtitulo, centroX + 45, centroY - 45, 45);
+                canvas.endText();
+                canvas.restoreState();
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao aplicar marca d'água no DANFE: " + e.getMessage(), e);
+            }
+        }
     }
 
     private PdfPCell createCell(String text, Font font, int alignment) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { notaFiscalService } from '../services/notaFiscalService';
-import { NotaFiscal } from '../types';
+import { NotaFiscal, STATUS_LABEL } from '../types';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { 
   FileText, 
@@ -152,10 +152,12 @@ const Dashboard: React.FC = () => {
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           nota.status === 'EMITIDA'
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-rose-50 text-rose-700 border border-rose-200'
+                            : nota.status === 'CANCELADA'
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : 'bg-amber-50 text-amber-800 border border-amber-200'
                         }`}
                       >
-                        {nota.status}
+                        {STATUS_LABEL[nota.status] ?? nota.status}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right font-semibold text-slate-800">

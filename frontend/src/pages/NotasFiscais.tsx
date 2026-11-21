@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { notaFiscalService } from '../services/notaFiscalService';
-import { NotaFiscal } from '../types';
+import { NotaFiscal, STATUS_LABEL } from '../types';
+import TransmissaoSefazModal from '../components/TransmissaoSefazModal';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { 
   FileText, 
@@ -11,16 +12,18 @@ import {
   Download, 
   Ban, 
   Eye,
-  AlertCircle
+  AlertCircle,
+  ScrollText
 } from 'lucide-react';
 
 const NotasFiscais: React.FC = () => {
   const [notas, setNotas] = useState<NotaFiscal[]>([]);
   const [loading, setLoading] = useState(true);
   const [termoBusca, setTermoBusca] = useState('');
-  const [filtroStatus, setFiltroStatus] = useState<'TODOS' | 'EMITIDA' | 'CANCELADA'>('TODOS');
+  const [filtroStatus, setFiltroStatus] = useState<'TODOS' | 'EMITIDA' | 'REJEITADA' | 'CANCELADA'>('TODOS');
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
+  const [notaLog, setNotaLog] = useState<NotaFiscal | null>(null);
 
   useEffect(() => {
     carregarNotas();
@@ -132,6 +135,14 @@ const NotasFiscais: React.FC = () => {
               Emitidas
             </button>
             <button
+              onClick={() => setFiltroStatus('REJEITADA')}
+              className={`px-3 py-1 rounded-md font-medium transition-all ${
+                filtroStatus === 'REJEITADA' ? 'bg-white text-amber-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Recusadas
+            </button>
+            <button
               onClick={() => setFiltroStatus('CANCELADA')}
               className={`px-3 py-1 rounded-md font-medium transition-all ${
                 filtroStatus === 'CANCELADA' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
@@ -199,11 +210,18 @@ const NotasFiscais: React.FC = () => {
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
                           nota.status === 'EMITIDA'
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-rose-50 text-rose-700 border border-rose-200'
+                            : nota.status === 'CANCELADA'
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : 'bg-amber-50 text-amber-800 border border-amber-200'
                         }`}
                       >
-                        {nota.status}
+                        {STATUS_LABEL[nota.status] ?? nota.status}
                       </span>
+                      {nota.mensagemSefaz && (
+                        <span className="block mt-1 max-w-[260px] text-[11px] leading-snug text-slate-500" title={nota.mensagemSefaz}>
+                          {nota.mensagemSefaz}
+                        </span>
+                      )}
                     </td>
                     <td className="py-4 px-4 text-right text-xs text-slate-600 font-medium">
                       {formatCurrency(nota.valorTotalIcms)}
@@ -213,6 +231,15 @@ const NotasFiscais: React.FC = () => {
                     </td>
                     <td className="py-4 px-4 text-center">
                       <div className="flex items-center justify-center gap-1.5">
+                        {/* Log da transmissão para a SEFAZ */}
+                        <button
+                          onClick={() => setNotaLog(nota)}
+                          title="Log da transmissão SEFAZ"
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 text-slate-600 transition-colors"
+                        >
+                          <ScrollText className="w-4 h-4" />
+                        </button>
+
                         {/* Visualizar DANFE PDF */}
                         <button
                           onClick={() => notaFiscalService.visualizarPdf(nota.id)}
@@ -259,6 +286,8 @@ const NotasFiscais: React.FC = () => {
           </div>
         )}
       </div>
+
+      {notaLog && <TransmissaoSefazModal nota={notaLog} onClose={() => setNotaLog(null)} />}
     </div>
   );
 };

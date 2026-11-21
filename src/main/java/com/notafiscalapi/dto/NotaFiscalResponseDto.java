@@ -26,4 +26,12 @@ public class NotaFiscalResponseDto {
     private BigDecimal valorTotalProdutos;
     private BigDecimal valorTotalIcms;
     private BigDecimal valorTotalNotaFiscal;
+    private String mensagemSefaz;
+    private String protocoloAutorizacao;
+    private String urlSefaz;
+    private LocalDateTime dataEnvioSefaz;
+    private Long tempoRespostaMs;
+    private Integer httpStatusSefaz;
+    private String requisicaoSefaz;
+    private String respostaSefaz;
 }

@@ -4,7 +4,8 @@ import { emitenteService } from '../services/emitenteService';
 import { destinatarioService } from '../services/destinatarioService';
 import { produtoService } from '../services/produtoService';
 import { notaFiscalService } from '../services/notaFiscalService';
-import { Emitente, Destinatario, Produto, NotaFiscalRequest } from '../types';
+import { Emitente, Destinatario, Produto, NotaFiscal, NotaFiscalRequest } from '../types';
+import TransmissaoSefazModal from '../components/TransmissaoSefazModal';
 import { formatCurrency } from '../utils/formatters';
 import { getFormValidationError } from '../utils/formValidation';
 import { 
@@ -24,6 +25,7 @@ interface ItemFormState {
 
 const EmitirNota: React.FC = () => {
   const navigate = useNavigate();
+  const [notaTransmitida, setNotaTransmitida] = useState<NotaFiscal | null>(null);
 
   const [emitentes, setEmitentes] = useState<Emitente[]>([]);
   const [destinatarios, setDestinatarios] = useState<Destinatario[]>([]);
@@ -146,8 +148,8 @@ const EmitirNota: React.FC = () => {
 
     try {
       setLoading(true);
-      await notaFiscalService.emitir(payload);
-      navigate('/notas');
+      const nota = await notaFiscalService.emitir(payload);
+      setNotaTransmitida(nota); // mostra o resultado da SEFAZ antes de voltar para a lista
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Erro ao emitir nota fiscal.';
       setErro(msg);
@@ -162,6 +164,7 @@ const EmitirNota: React.FC = () => {
 
   return (
     <form noValidate onSubmit={handleSubmit} className="max-w-5xl space-y-6">
+      {notaTransmitida && <TransmissaoSefazModal nota={notaTransmitida} onClose={() => navigate('/notas')} />}
       {/* Topo */}
       <div>
         <h2 className="text-xl font-bold text-slate-800">Emissão de Nota Fiscal Eletrônica</h2>

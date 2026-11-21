@@ -1,5 +1,8 @@
 package com.notafiscalapi.enums;
 
 public enum StatusNotaFiscal {
-    EMITIDA,CANCELADA
+    EMITIDA,
+    REJEITADA,
+    FALHA_ENVIO,
+    CANCELADA
 }

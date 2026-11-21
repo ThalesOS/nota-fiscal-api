@@ -29,6 +29,14 @@ public class NotaFiscalMapper {
         dto.setValorTotalProdutos(entity.getValorTotalProdutos());
         dto.setValorTotalIcms(entity.getValorTotalIcms());
         dto.setValorTotalNotaFiscal(entity.getValorTotalNotaFiscal());
+        dto.setMensagemSefaz(entity.getMensagemSefaz());
+        dto.setProtocoloAutorizacao(entity.getProtocoloAutorizacao());
+        dto.setUrlSefaz(entity.getUrlSefaz());
+        dto.setDataEnvioSefaz(entity.getDataEnvioSefaz());
+        dto.setTempoRespostaMs(entity.getTempoRespostaMs());
+        dto.setHttpStatusSefaz(entity.getHttpStatusSefaz());
+        dto.setRequisicaoSefaz(entity.getRequisicaoSefaz());
+        dto.setRespostaSefaz(entity.getRespostaSefaz());
 
         if (entity.getEmitente() != null) {
             dto.setEmitente(EmitenteMapper.toDto(entity.getEmitente()));

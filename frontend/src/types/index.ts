@@ -1,4 +1,11 @@
-export type StatusNotaFiscal = 'EMITIDA' | 'CANCELADA';
+export type StatusNotaFiscal = 'EMITIDA' | 'REJEITADA' | 'FALHA_ENVIO' | 'CANCELADA';
+
+export const STATUS_LABEL: Record<StatusNotaFiscal, string> = {
+  EMITIDA: 'EMITIDA',
+  REJEITADA: 'RECUSADA PELA SEFAZ',
+  FALHA_ENVIO: 'FALHA NO ENVIO',
+  CANCELADA: 'CANCELADA',
+};
 
 export interface Emitente {
   id: number;
@@ -82,6 +89,14 @@ export interface NotaFiscal {
   valorTotalProdutos: number;
   valorTotalIcms: number;
   valorTotalNotaFiscal: number;
+  mensagemSefaz?: string;
+  protocoloAutorizacao?: string;
+  urlSefaz?: string;
+  dataEnvioSefaz?: string;
+  tempoRespostaMs?: number;
+  httpStatusSefaz?: number;
+  requisicaoSefaz?: string;
+  respostaSefaz?: string;
 }
 
 export interface NotaFiscalRequest {

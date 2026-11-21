@@ -38,6 +38,17 @@ public class NotaFiscal {
     private BigDecimal valorTotalIcms;
     @Column(nullable = false)
     private BigDecimal valorTotalNotaFiscal;
+    @Column(length = 1000)
+    private String mensagemSefaz;
+    private String protocoloAutorizacao;
+    private String urlSefaz;
+    private LocalDateTime dataEnvioSefaz;
+    private Long tempoRespostaMs;
+    private Integer httpStatusSefaz;
+    @Column(columnDefinition = "text")
+    private String requisicaoSefaz;
+    @Column(columnDefinition = "text")
+    private String respostaSefaz;
 
 
 
