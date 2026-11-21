@@ -60,7 +60,7 @@ const Emitentes: React.FC = () => {
     setFormData({
       cnpj: emit.cnpj,
       razaoSocial: emit.razaoSocial,
-      inscricaoEstadual: emit.inscricaoEstadual,
+      inscricaoEstadual: emit.inscricaoEstadual.replace(/\D/g, ''),
       logradouro: emit.logradouro,
       numero: emit.numero,
       bairro: emit.bairro,
@@ -92,6 +92,7 @@ const Emitentes: React.FC = () => {
     // Validação de CNPJ e CEP
     const cnpjLimpo = formData.cnpj.replace(/\D/g, '');
     const cepLimpo = formData.cep.replace(/\D/g, '');
+    const inscricaoEstadualLimpa = formData.inscricaoEstadual.replace(/\D/g, '');
 
     if (cnpjLimpo.length !== 14) {
       setErro('O CNPJ deve conter exatamente 14 dígitos numéricos.');
@@ -99,6 +100,10 @@ const Emitentes: React.FC = () => {
     }
     if (cepLimpo.length !== 8) {
       setErro('O CEP deve conter exatamente 8 dígitos numéricos.');
+      return;
+    }
+    if (!/^\d{8,14}$/.test(inscricaoEstadualLimpa)) {
+      setErro('A Inscrição Estadual deve conter entre 8 e 14 dígitos numéricos.');
       return;
     }
     const validationError = getFormValidationError(e.currentTarget);
@@ -113,6 +118,7 @@ const Emitentes: React.FC = () => {
           ...formData,
           cnpj: cnpjLimpo,
           cep: cepLimpo,
+          inscricaoEstadual: inscricaoEstadualLimpa,
         });
         setSucesso('Emitente atualizado com sucesso!');
       } else {
@@ -120,6 +126,7 @@ const Emitentes: React.FC = () => {
           ...formData,
           cnpj: cnpjLimpo,
           cep: cepLimpo,
+          inscricaoEstadual: inscricaoEstadualLimpa,
         });
         setSucesso('Emitente cadastrado com sucesso!');
       }
@@ -239,7 +246,8 @@ const Emitentes: React.FC = () => {
                 <input
                   type="text"
                   required
-                              minLength={3}
+                  minLength={3}
+                  data-requires-letter
                   value={formData.razaoSocial}
                   onChange={(e) => setFormData({ ...formData, razaoSocial: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -274,13 +282,25 @@ const Emitentes: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Inscrição Estadual *</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    Inscrição Estadual (8 a 14 dígitos) *
+                  </label>
                   <input
                     type="text"
                     required
+                    minLength={8}
+                    maxLength={14}
+                    pattern="[0-9]{8,14}"
+                    inputMode="numeric"
                     value={formData.inscricaoEstadual}
-                    onChange={(e) => setFormData({ ...formData, inscricaoEstadual: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        inscricaoEstadual: e.target.value.replace(/\D/g, '').slice(0, 14),
+                      })
+                    }
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="Somente números"
                   />
                 </div>
               </div>
@@ -292,6 +312,7 @@ const Emitentes: React.FC = () => {
                     type="text"
                     required
                     minLength={3}
+                    data-requires-letter
                     value={formData.logradouro}
                     onChange={(e) => setFormData({ ...formData, logradouro: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -316,6 +337,7 @@ const Emitentes: React.FC = () => {
                     type="text"
                     required
                     minLength={3}
+                    data-requires-letter
                     value={formData.bairro}
                     onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"

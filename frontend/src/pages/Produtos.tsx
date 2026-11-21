@@ -221,6 +221,7 @@ const Produtos: React.FC = () => {
                   type="text"
                   required
                   minLength={3}
+                  data-requires-letter
                   value={formData.descricao}
                   onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"

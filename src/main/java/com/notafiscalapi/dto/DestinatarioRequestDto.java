@@ -2,6 +2,7 @@ package com.notafiscalapi.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,12 +19,14 @@ public class DestinatarioRequestDto {
     private String documento;
     @NotBlank(message = "O nome deve ser obrigatório")
     @Size(min = 3, message = "O nome deve conter ao menos 3 caracteres")
+    @Pattern(regexp = ".*\\p{L}.*", message = "O nome deve conter pelo menos uma letra")
     private String nome;
     @NotBlank(message = "O email é obrigatório")
     @Email(message = "Email com formato inválido")
     private String email;
     @NotBlank(message = "O logradouro é obrigatório")
     @Size(min = 3, message = "O logradouro deve conter ao menos 3 caracteres")
+    @Pattern(regexp = ".*\\p{L}.*", message = "O logradouro deve conter pelo menos uma letra")
     private String logradouro;
     @NotBlank(message = "O número é obrigatório")
     private String numero;

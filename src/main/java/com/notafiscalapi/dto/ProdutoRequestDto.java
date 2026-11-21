@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 public class ProdutoRequestDto {
     @NotBlank(message = "A descrição é obrigatória")
     @Size(min = 3, message = "A descrição deve conter ao menos 3 caracteres")
+    @Pattern(regexp = ".*\\p{L}.*", message = "A descrição deve conter pelo menos uma letra")
     private String descricao;
     @NotNull(message = "O valor unitário é obrigatório")
     @Positive(message = "O valor unitário deve ser maior que zero")

@@ -236,6 +236,7 @@ const Destinatarios: React.FC = () => {
                   type="text"
                   required
                   minLength={3}
+                  data-requires-letter
                   value={formData.nome}
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -286,6 +287,7 @@ const Destinatarios: React.FC = () => {
                     type="text"
                     required
                     minLength={3}
+                    data-requires-letter
                     value={formData.logradouro}
                     onChange={(e) => setFormData({ ...formData, logradouro: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
