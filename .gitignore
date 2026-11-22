@@ -35,3 +35,15 @@ build/
 ### Node / Frontend ###
 frontend/node_modules/
 frontend/dist/
+
+### Environment & Sensitive Files ###
+.env
+.env.*
+*.pfx
+*.p12
+*.key
+*.pem
+
+### OS ###
+Thumbs.db
+.DS_Store

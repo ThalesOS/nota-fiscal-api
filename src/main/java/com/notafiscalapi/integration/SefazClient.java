@@ -24,18 +24,11 @@ import java.time.ZoneId;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Transmite a NF-e para o webservice NFeAutorizacao4 da SEFAZ (padrão: SVRS, ambiente de homologação).
- *
- * A SEFAZ exige autenticação mútua (TLS com certificado digital ICP-Brasil A1).
- * Sem certificado configurado, o servidor da SEFAZ recusa o acesso (HTTP 403) e esse retorno é registrado na nota.
- * Para usar o certificado da empresa, basta configurar SEFAZ_CERTIFICADO_CAMINHO e SEFAZ_CERTIFICADO_SENHA.
- */
 @Component
 public class SefazClient {
 
     private static final String NS_WSDL = "http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4";
-    // Os servidores da SEFAZ usam certificados da cadeia ICP-Brasil, que não vem no truststore padrão do Java.
+
     private static final String[] RAIZES_ICP_BRASIL = {"certs/icp-brasil-raiz-v10.crt", "certs/icp-brasil-raiz-v5.crt"};
 
     @Value("${sefaz.autorizacao.url}")

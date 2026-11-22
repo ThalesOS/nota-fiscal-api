@@ -59,7 +59,6 @@ public class NotaFiscalService {
         NotaFiscal notaFiscal = NotaFiscalMapper.toEntity(dto);
         notaFiscal.setEmitente(emitente);
         notaFiscal.setDestinatario(destinatario);
-        // Status provisório; o definitivo vem do retorno da SEFAZ abaixo.
         notaFiscal.setStatus(StatusNotaFiscal.FALHA_ENVIO);
         notaFiscal.setDataEmissao(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
 
